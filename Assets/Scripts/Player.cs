@@ -1,29 +1,19 @@
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour {
-    public event Action Died;
     public GameState gameState = GameState.Started;
 
     [SerializeField] private int startCubesCount;
     [SerializeField] private CubesStack stack;
     [SerializeField] private PathFollower pathFollower;
-    [SerializeField] private Store store;
     [SerializeField] private CollectableDetector detector;
-    [SerializeField] private LevelInfo levelInfo;
+    [SerializeField] private LevelManager levelManager;
 
     private void Start() {
-        var currentLevelIndex = store.GetCurrentLevelIndex();
+        levelManager.LoadLevel();
 
-        if (currentLevelIndex != levelInfo.index) {
-            SceneManager.LoadScene("Level" + currentLevelIndex);
-        }
-
-
-        for (var i = 0; i < startCubesCount; i++) {
-            stack.Push();
-        }
+        for (var i = 0; i < startCubesCount; i++) stack.Push();
     }
 
     private void OnEnable() {
@@ -36,28 +26,24 @@ public class Player : MonoBehaviour {
         pathFollower.PathCompleted -= LevelComplete;
     }
 
+    public event Action Died;
+
     private void LevelComplete() {
         gameState = GameState.LevelEnded;
         Died?.Invoke();
     }
 
     private void OnChange(int count) {
-        if (count <= 0) {
-            Die();
-        }
+        if (count <= 0) Die();
     }
 
     private void Die() {
         gameState = GameState.PlayerDied;
         Died?.Invoke();
 
-        if (detector.lastMultiplicatorValue == 0) {
-            SceneManager.LoadScene("Level" + store.GetCurrentLevelIndex());
-        }
-        else {
-            store.SetLastMultiplicator(detector.lastMultiplicatorValue);
-            store.LevelPassed();
-            SceneManager.LoadScene("Next");
-        }
+        if (detector.lastMultiplicatorValue == 0)
+            levelManager.ReloadLevel();
+        else
+            levelManager.LoadNextLevel(detector.lastMultiplicatorValue);
     }
 }

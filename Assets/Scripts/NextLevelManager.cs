@@ -2,7 +2,6 @@
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class NextLevelManager : MonoBehaviour {
@@ -15,10 +14,11 @@ public class NextLevelManager : MonoBehaviour {
     [SerializeField] private Store store;
     [SerializeField] private GameObject coinPrefab;
     [SerializeField] private float spread;
+    [SerializeField] private LevelManager levelManager;
+    private bool _coinsAdded;
+    private Vector3 _spawnPosition;
 
     private Vector3 _targetPosition;
-    private Vector3 _spawnPosition;
-    private bool _coinsAdded = false;
 
     private void Awake() {
         _targetPosition = coinsText.transform.position;
@@ -35,21 +35,19 @@ public class NextLevelManager : MonoBehaviour {
         nextButton.interactable = true;
     }
 
-    public void Next() {
-        // next level is current before we called store.LevelPassed in previous scene
-        SceneManager.LoadScene("Level" + store.GetCurrentLevelIndex());
+    private void Next() {
+        levelManager.LoadLevel();
     }
 
     private void AddCoins() {
         var lastMultiplicator = store.GetLastMultiplicator();
-        // actually level is incremented, but we add for previous level, so -10
-        // var coinsToAdd = (store.GetCoinsForCurrentLevel() - 10) * lastMultiplicator;
-        var coinsToAdd = (store.GetCoinsForCurrentLevel()) * lastMultiplicator;
+        var coinsToAdd = store.GetCoinsForCurrentLevel() * lastMultiplicator;
         const int step = 10; // assumed that coinsToAdd % step = 0
         var coins = new Queue<GameObject>();
         for (var i = 0; i < coinsToAdd / step; i++) {
             var coin = Instantiate(coinPrefab);
-            coin.transform.position = _spawnPosition + new Vector3(Random.Range(-spread, spread), Random.Range(-spread, spread), Random.Range(-spread, spread));
+            coin.transform.position = _spawnPosition + new Vector3(Random.Range(-spread, spread),
+                Random.Range(-spread, spread), Random.Range(-spread, spread));
             coin.transform.SetParent(spawnTransform);
             coin.SetActive(false);
             coins.Enqueue(coin);

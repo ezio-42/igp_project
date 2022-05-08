@@ -2,10 +2,14 @@
 using UnityEngine;
 
 public class Store : MonoBehaviour {
+    // levels indexed starting from 0
+    private const int MaxLevelIndex = 4;
+    private const int AmountOfLevelsInTutorial = 2;
     public TMP_Text coinsText;
+    public int coinsPerLevelIndexMultiplicator = 10;
+
     public void Start() {
         coinsText.SetText(GetCoins().ToString());
-        SetCurrentLevelIndex(0);  // TODO: remove after adding more levels
     }
 
     public int GetCurrentLevelIndex() {
@@ -15,18 +19,18 @@ public class Store : MonoBehaviour {
     public int GetNextLevelIndex() {
         var currentLevelIndex = GetCurrentLevelIndex();
         var tutorialPassed = GetTutorialPassed();
-        if (tutorialPassed && (currentLevelIndex > 4 || currentLevelIndex < 2)) {
-            return 2;
-        }
+        var nextLevelIndex = (currentLevelIndex + 1) % (MaxLevelIndex + 1);
 
-        return currentLevelIndex + 1;
+        if (tutorialPassed)
+            if (nextLevelIndex < AmountOfLevelsInTutorial)
+                return AmountOfLevelsInTutorial;
+
+        return nextLevelIndex;
     }
 
     public void LevelPassed() {
         var currentLevelIndex = GetCurrentLevelIndex();
-        if (currentLevelIndex == 1) {
-            TutorialPassed();
-        }
+        if (currentLevelIndex == AmountOfLevelsInTutorial - 1) TutorialPassed();
         SetCurrentLevelIndex(GetNextLevelIndex());
     }
 
@@ -44,7 +48,7 @@ public class Store : MonoBehaviour {
 
     public int GetCoinsForCurrentLevel() {
         var currentLevelIndex = GetCurrentLevelIndex();
-        return currentLevelIndex * 10 + 10;
+        return currentLevelIndex * coinsPerLevelIndexMultiplicator + coinsPerLevelIndexMultiplicator;
     }
 
     public void AddCoins(int coins) {

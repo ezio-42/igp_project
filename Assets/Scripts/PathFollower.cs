@@ -1,17 +1,16 @@
-using UnityEngine;
-using BezierSolution;
 using System;
+using BezierSolution;
+using UnityEngine;
 
 public class PathFollower : MonoBehaviour {
-    public event Action PathCompleted;
-
     [SerializeField] private BezierSpline bezierSpline;
     [SerializeField] private float speed;
+    [SerializeField] private float rotationSpeed = 10;
     [SerializeField] private Player player;
-
-    private float _passedPath;
     private Transform _cachedTransform;
     private bool _isPathCompleted;
+
+    private float _passedPath;
 
     private void Start() {
         _cachedTransform = transform;
@@ -38,17 +37,20 @@ public class PathFollower : MonoBehaviour {
         player.Died -= Stop;
     }
 
+    public event Action PathCompleted;
+
     private void Stop() {
         speed = 0;
     }
 
     private void SetNextPosition() {
-        _cachedTransform.position = bezierSpline.MoveAlongSpline(ref _passedPath, speed * Time.deltaTime);;
+        _cachedTransform.position = bezierSpline.MoveAlongSpline(ref _passedPath, speed * Time.deltaTime);
+        ;
     }
 
     private void SetNextRotation() {
         var segment = bezierSpline.GetSegmentAt(_passedPath);
         var targetRotation = Quaternion.LookRotation(segment.GetTangent(), segment.GetNormal());
-        _cachedTransform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, 10 * Time.deltaTime);
+        _cachedTransform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 }

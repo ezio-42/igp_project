@@ -7,16 +7,12 @@ public class HorizontalMover : MonoBehaviour {
     [SerializeField] private Player player;
 
     private void Awake() {
-        if (cachedTransform == null) {
-            cachedTransform = transform;
-        }
+        if (cachedTransform == null) cachedTransform = transform;
     }
 
 
     public void Update() {
-        if (player.gameState == GameState.Started) {
-            MoveHorizontally(slider.GetHorizontalPosition());
-        }
+        if (player.gameState == GameState.Started) MoveHorizontally(slider.GetHorizontalPosition());
     }
 
     private void MoveHorizontally(float position) {
