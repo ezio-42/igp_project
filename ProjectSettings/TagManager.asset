@@ -11,14 +11,14 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Collectable
+  - Wall
+  - Collected
+  - WallTrigger
+  - CollectableTrigger
+  - Platform
+  - Multiplicator
+  - Lava
   - 
   - 
   - 
